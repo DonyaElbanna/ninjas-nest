@@ -1,30 +1,45 @@
-import { Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { CreateNinjaDto } from './dto/create-ninja.dto';
 
 @Controller('ninjas')
 export class NinjasController {
-
-    @Get()
-    getAllNinjas(){
-        return "All Ninjas";
+  @Get()
+  getAllNinjas(@Query('type') type: string) {
+    if (type) {
+      return [{ type }];
     }
 
-    @Get(':id')
-    getSingleNinja(@Param('id') id: string){
-        return `Single Ninja ${id}`;
-    }
+    return 'All Ninjas';
+  }
 
-    @Post()
-    createNinja(){
-        return "Create Ninja";
-    }
+  @Get(':id')
+  getSingleNinja(@Param('id') id: string) {
+    return `Single Ninja ${id}`;
+  }
 
-    @Put(':id')
-    updateNinja(@Param('id') id:string){
-        return `Update Ninja ${id}`;
-    }
+  @Post()
+  createNinja(@Body() createNinjaDto: CreateNinjaDto) {
+    return {
+      name: createNinjaDto.name,
+    };
+  }
 
-    @Delete(':id')
-    deleteNinja(@Param('id') id: string){
-        return `Delete Ninja ${id}`;
-    }
+  @Put(':id')
+  updateNinja(@Param('id') id: string) {
+    return `Update Ninja ${id}`;
+  }
+
+  @Delete(':id')
+  deleteNinja(@Param('id') id: string) {
+    return `Delete Ninja ${id}`;
+  }
 }
