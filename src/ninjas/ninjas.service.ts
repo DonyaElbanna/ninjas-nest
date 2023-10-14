@@ -1,53 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { CreateNinjaDto } from './dto/create-ninja.dto';
-import { UpdateNinjaDto } from './dto/update-ninja.dto';
+import { Ninja } from './interfaces/ninja.interface';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class NinjasService {
-  private ninjas = [
-    { id: 1, name: 'ninjaA', weapon: 'stars' },
-    { id: 2, name: 'ninjaB', weapon: 'nunchucks' },
-    { id: 3, name: 'ninjaC', weapon: 'katana' },
-    { id: 4, name: 'ninjaD', weapon: 'stick' },
-  ];
+  constructor(@InjectModel('Ninja') private ninjaModel: Model<Ninja>) {}
 
-  getNinjas(weapon?: string) {
-    if (weapon) {
-      return this.ninjas.filter((ninja) => ninja.weapon === weapon);
+  // private ninjas = [
+  //   { id: 1, name: 'ninjaA', weapon: 'stars' },
+  //   { id: 2, name: 'ninjaB', weapon: 'nunchucks' },
+  //   { id: 3, name: 'ninjaC', weapon: 'katana' },
+  //   { id: 4, name: 'ninjaD', weapon: 'dagger' },
+  //   { id: 4, name: 'ninjaD', weapon: 'stick' },
+  // ];
+
+  // getNinjas(weapon?: string) {
+  //   if (weapon) {
+  //     return this.ninjas.filter((ninja) => ninja.weapon === weapon);
+  //   }
+  //   return this.ninjas;
+  // }
+
+  async getAllNinjas(weapon: string, type: string): Promise<Ninja[]> {
+    if (type) {
+      return await this.ninjaModel.find({ type: type });
+    } else if (weapon) {
+      return await this.ninjaModel.find({ weapon: weapon });
     }
-    return this.ninjas;
+    return await this.ninjaModel.find();
   }
 
-  getSingleNinja(id: number) {
-    const singleNinja = this.ninjas.find((ninja) => ninja.id === id);
-    if (!singleNinja) {
-      throw new Error("The Ninja you're looking for can't be located");
-    }
-    return singleNinja;
+  async getNinja(id: string): Promise<Ninja> {
+    return await this.ninjaModel.findById(id);
   }
 
-  createNinja(createNinjaDto: CreateNinjaDto) {
-    const newNinja = { ...createNinjaDto, id: Date.now() };
-    this.ninjas.push(newNinja);
+  async createNinja(ninja: Ninja): Promise<Ninja> {
+    const newNinja = new this.ninjaModel(ninja);
+    return await newNinja.save();
   }
 
-  updateNinja(id: number, updateNinjaDto: UpdateNinjaDto) {
-    this.ninjas = this.ninjas.map((ninja) => {
-      if (ninja.id === id) {
-        console.log('updated ninja', { ...ninja, ...updateNinjaDto });
-        return { ...ninja, ...updateNinjaDto };
-      }
-      console.log('not updated', ninja);
-      return ninja;
-    });
-    return this.getSingleNinja(id);
-  }
-
-  deleteNinja(id: number) {
-    const deletedNinja = this.getSingleNinja(id);
-
-    this.ninjas = this.ninjas.filter((ninja) => ninja.id !== id);
-
+  async deleteNinja(id: string): Promise<Ninja> {
+    const deletedNinja = await this.ninjaModel.findByIdAndDelete(id);
     return deletedNinja;
+  }
+
+  async updateNinja(id: string, ninja: Ninja): Promise<Ninja> {
+    const updatedNinja = await this.ninjaModel.findByIdAndUpdate(id, ninja, {
+      new: true,
+    });
+    return updatedNinja;
   }
 }
