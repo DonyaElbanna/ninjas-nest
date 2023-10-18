@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateNinjaDto } from './dto/create-ninja.dto';
 import { Ninja } from './interfaces/ninja.interface';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+// import {Cache} from "cache-manager";
+// import {CACHE_MANAGER} from "@nest/cache-manager"
 
 @Injectable()
 export class NinjasService {
-  constructor(@InjectModel('Ninja') private ninjaModel: Model<Ninja>) {}
+  constructor(
+    @InjectModel('Ninja') private ninjaModel: Model<Ninja>,
+    // @Inject(CACHE_MANAGER private cacheManager: Cache
+  ) {}
 
   // private ninjas = [
   //   { id: 1, name: 'ninjaA', weapon: 'stars' },
